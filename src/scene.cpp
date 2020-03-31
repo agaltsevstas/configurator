@@ -55,7 +55,7 @@ void Scene::mousePressEvent(QGraphicsSceneMouseEvent *mouseEvent)
             }
             item->removeArrows();
             item->setEnabledButton();
-            y_ -= 40;
+            y_ -= 50;
             removeItem(item);
             delete item;
         }

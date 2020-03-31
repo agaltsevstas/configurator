@@ -14,7 +14,7 @@ public:
     GraphicsView(QWidget *parent = nullptr);
 
 protected:
-    void resizeEvent(QResizeEvent *event);
+    void resizeEvent(QResizeEvent *event) override;
 
 private:
     const int x_      = 0;

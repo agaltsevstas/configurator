@@ -75,17 +75,7 @@
        </property>
        <item>
         <property name="text">
-         <string>../debug/</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>../release/</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>../res/struct/</string>
+         <string>../struct/</string>
         </property>
        </item>
       </widget>

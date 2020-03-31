@@ -1,6 +1,7 @@
-#include "configurator.h"
-
+#include <iostream>
 #include <utility>
+
+#include "configurator.h"
 
 inline string removeSymbols(const string &line, const string &symbols)
 {
@@ -92,60 +93,74 @@ vector<vector<string>> Configurator::parsingFile(const string &fileName)
     std::ifstream file;
 
     file.open(fileName, ios::in);
-    while (getline(file, line))
+    try
     {
-        line = removeSymbols(line, " \t");
-        if (line == expectedStart)
+        while (getline(file, line))
         {
-            do
+            line = removeSymbols(line, " \t");
+            if (line == expectedStart)
             {
-                getline(file, line);
-                line = removeSymbols(line, " ()\"");
-                if (line.empty() || line[0] == '/')
+                do
                 {
-                    continue;
-                }
+                    getline(file, line);
+                    line = removeSymbols(line, " ()\"");
+                    if (line.empty() || line[0] == '/')
+                    {
+                        continue;
+                    }
+                    if (line == expectedEnd)
+                    {
+                        break;
+                    }
+                    line.erase(line.end() - 1); // Удаление в конце ;
+                    string lineCopy = line.substr(parameter.size(), line.size());
+                    boost::split(parameters, lineCopy, boost::is_any_of(","));
+                    if (parameters.size() > 4)
+                    {
+                        while (parameters.size() > 4)
+                        {
+                            auto it = parameters.begin() + 4;
+                            parameters[3] += "," + *it;
+                            parameters.erase(it);
+                        }
+                    }
+                    if (parameters.size() != 4)
+                    {
+                        throw to_string(parameters.size());
+                    }
+                    else if (parameters[3] == "true") // Изменение параметра true на 1
+                    {
+                        parameters[3] = "1";
+                    }
+                    else if (parameters[3] == "false") // Изменение параметра false на 0
+                    {
+                        parameters[3] = "0";
+                    }
+                    parametersVector.push_back(parameters);
+                } // Считывать строку пока есть слово PARAMETER, или строка empty, или строка комментарий
+                while (line.substr(0, parameter.size()) == parameter || line.empty() || line[0] == '/');
                 if (line == expectedEnd)
                 {
                     break;
                 }
-                line.erase(line.end() - 1); // Удаление в конце ;
-                string lineCopy = line.substr(parameter.size(), line.size());
-                boost::split(parameters, lineCopy, boost::is_any_of(","));
-                if (parameters.size() > 4)
+                else
                 {
-                    while (parameters.size() > 4)
-                    {
-                        auto it = parameters.begin() + 4;
-                        parameters[3] += "," + *it;
-                        parameters.erase(it);
-                    }
+                    parametersVector.clear(); // Если отсутсвует слово EXPECTED_END
                 }
-                if (parameters.size() != 4)
-                {
-                    throw runtime_error("Недостаточное кол-во параметров EXPECTED >> " +
-                                        to_string(parameters.size()));
-                }
-                else if (parameters[3] == "true") // Изменение параметра true на 1
-                {
-                    parameters[3] = "1";
-                }
-                else if (parameters[3] == "false") // Изменение параметра false на 0
-                {
-                    parameters[3] = "0";
-                }
-                parametersVector.push_back(parameters);
-            } // Считывать строку пока есть слово PARAMETER, или строка empty, или строка комментарий
-            while (line.substr(0, parameter.size()) == parameter || line.empty() || line[0] == '/');
-            if (line == expectedEnd)
-            {
-                break;
-            }
-            else
-            {
-                parametersVector.clear(); // Если отсутсвует слово EXPECTED_END
             }
         }
+    }
+    catch(const string &exception)
+    {
+        cerr << "Недостаточное кол-во параметров EXPECTED >> " << exception << endl;
+    }
+    catch(const exception &ex)
+    {
+        cerr << "Ошибка >> " << ex.what() << endl;
+    }
+    catch(...)
+    {
+        cerr << "Неизвестная ошибка!" << endl;
     }
     // Сортировка по обязательным параметрам
     stable_sort(parametersVector.begin(), parametersVector.end(), [this]

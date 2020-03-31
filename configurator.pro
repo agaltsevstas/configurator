@@ -1,7 +1,7 @@
 TARGET = Configurator
 QT       += core gui
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
-CONFIG += c++14
+CONFIG += c++17
 CONFIG -= app_bundle
 
 message("PLATFORM  IDENTITY: " $$QMAKE_HOST.arch)
@@ -78,4 +78,5 @@ FORMS += \
 # Boost
 LIBS += -L$$COMMON_LIBS_DIR \
         -lboost_filesystem \
-        -lboost_system
+        -lboost_system \
+        -lboost_program_options

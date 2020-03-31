@@ -26,7 +26,7 @@ signals:
     void midClicked();   /// Нажатие средней кнопки мыши (не задействованно).
 
 protected:    
-    void mousePressEvent(QMouseEvent *event);
+    void mousePressEvent(QMouseEvent *event) override;
 
 private:
     QString name_; /// Название.
