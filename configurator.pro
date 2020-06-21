@@ -23,12 +23,12 @@ contains(QMAKE_HOST.arch, aarch64):{
 
 # Build properties
 
+DESTDIR = $$PWD/bin
+
 #Отключить "теневую сборку" в криейторе!
 CONFIG(release, debug|release) {
 
 message(Project $$TARGET (Release))
-
-DESTDIR = $$PWD/bin
 
 OBJECTS_DIR = build/release
 MOC_DIR = build/release
@@ -38,8 +38,6 @@ UI_DIR = build/release
 CONFIG(debug, debug|release) {
 
 message(Project $$TARGET (Debug))
-
-DESTDIR = $$PWD/bin
 
 OBJECTS_DIR = build/debug
 MOC_DIR = build/debug

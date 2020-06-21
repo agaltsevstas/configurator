@@ -31,10 +31,10 @@ set(CMAKE_AUTOMOC ON)
 ################# output config ################
 # Путь для выходного файла.
 if(CMAKE_BUILD_TYPE MATCHES Debug)
-  set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/debug)
+  set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/bin)
 else()
   set(CMAKE_BUILD_TYPE Release)
-  set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/release)
+  set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/bin)
 endif()
 
 # Qt et common
