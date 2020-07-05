@@ -84,13 +84,6 @@ map<string, string> getModules(const string &directory)
             }
             else
                 isFound = false;
-            //// Метод пытающийся перейти к имени следующего файла во вложенной последовательности
-//            boost::system::error_code ec;
-//            iter.increment(ec);
-//            if (ec)
-//            {
-//                cerr << "Error While Accessing : " << iter->path().string() << " :: " << ec.message() << endl;
-//            }
         }
     }
     catch (exception &ex)
