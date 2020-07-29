@@ -15,6 +15,12 @@ GUI приложение, позволяющее быстро сконфигур
 * cmake
 * qmake
 
+### Загрузка 
+```
+git clone https://gitlab.com/cplusplusprojects/configurator.git
+cd configurator
+```
+
 ### Установка с помощью cmake
 ```
 cmake CMakeLists.txt
