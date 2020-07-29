@@ -18,7 +18,7 @@ GUI приложение, позволяющее быстро сконфигур
 ### Загрузка 
 ```
 git clone https://gitlab.com/cplusplusprojects/configurator.git
-cd configurator
+cd configurator/
 ```
 
 ### Установка с помощью cmake
