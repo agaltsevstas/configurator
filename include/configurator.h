@@ -5,13 +5,6 @@
 #include <map>
 #include <vector>
 
-#include <boost/filesystem.hpp>
-#include <boost/algorithm/string.hpp>
-#include <boost/range/algorithm/remove_if.hpp>
-
-using namespace std;
-using namespace boost::filesystem;
-
 /**
  * Конфигурационный класс
  * Содержит используемые модули и связи между ними.
@@ -20,7 +13,7 @@ class Configurator
 {
 private:
 
-    map<string, bool> bools_ =
+    std::map<std::string, bool> _bools =
     {
         {"true",  true  },
         {"false", false }
@@ -31,29 +24,28 @@ private:
      */
     struct Type
     {
-        string name; /// Название модуля.
+        std::string name; /// Название модуля.
         /// Список ожидаемых (обязательных и необязательных) параметров модуля.
-        vector<vector<string>> parametersVector; 
+        std::vector<std::vector<std::string>> parametersVector;
     };
 
 public:
     Configurator() {}    
     /// Получение карты взаимодействующих модулей.
-    inline const map<uint, Type> getTypes() const { return types_; }        
+    inline const std::map<uint, Type> getTypes() const { return _types; }
     /// Получение карты связей между модулями.
-    inline const map<uint, vector<uint>> getLinks() const { return links_; }
+    inline const std::map<uint, std::vector<uint>> getLinks() const { return _links; }
     /// Добавление двух взаимодействующих модулей  и путей к ним.
-    void addTypes(const string &input, const string &ouput, const map<string, string> &filePaths);
+    void addTypes(const std::string &input, const std::string &ouput, const std::map<std::string, std::string> &filePaths);
 
-private:    
-    uint id_ = 0; /// Идентификатор модуля.
-    
-    map<uint, Type>         types_;     /// Карта взаимодействующих модулей.
-    map<string, string>     filePaths_; /// Карта путей к модулям.
-    map<uint, vector<uint>> links_;     /// Карта связей между модулями.
+private:
+    int  findType(const std::string &name); /// Поиск модуля среди ранее добавленных модулей.
+    void addType(const std::string &name); /// Добавление модуля.
+    std::vector<std::vector<std::string>> parsingFile(const std::string &fileName); /// Парсинг заголовочного файла модуля для поиска списка ожидаемых параметров.
 
-    int  findType(const string &name);  /// Поиск модуля среди ранее добавленных модулей.
-    void addType(const string &name);   /// Добавление модуля.
-    vector<vector<string>> parsingFile(const string &fileName); /// Парсинг заголовочного файла модуля для поиска списка ожидаемых параметров.
+    uint _id = 0; /// Идентификатор модуля.
+    std::map<uint, Type> _types; /// Карта взаимодействующих модулей.
+    std::map<std::string, std::string> _filePaths; /// Карта путей к модулям.
+    std::map<uint, std::vector<uint>> _links; /// Карта связей между модулями.
 };
 #endif // CONFIGURATOR_H

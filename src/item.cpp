@@ -1,21 +1,21 @@
+#include "item.h"
+
 #include <QGraphicsScene>
 #include <QPainter>
 
-#include "item.h"
-
 Item::Item(Button *button, QGraphicsItem *parent) :
     QGraphicsPolygonItem (parent),
-    name_ (button->getName()),
-    button_ (button)
+    _name(button->getName()),
+    _button(button)
 {
     // Отрисовка фигуры в виде многоугольника
-    polygon_ << QPointF(x_, y_)
-             << QPointF(width_ / 2, y_)
-             << QPointF(width_ / 2,  height_ / 2)
-             << QPointF(x_, height_ / 2)
-             << QPointF(x_, y_);
+    _polygon << QPointF(_x, _y)
+             << QPointF(_width / 2, _y)
+             << QPointF(_width / 2, _height / 2)
+             << QPointF(_x, _height / 2)
+             << QPointF(_x, _y);
 
-    setPolygon(polygon_);
+    setPolygon(_polygon);
     setFlag(ItemIsMovable, true);            // Перемещение элемента
     setFlag(ItemIsSelectable, true);         // Выделение элемента
     setFlag(ItemSendsGeometryChanges, true); // Изменение расположения элемента
@@ -24,32 +24,32 @@ Item::Item(Button *button, QGraphicsItem *parent) :
 
 void Item::setEnabledButton()
 {
-    button_->setEnabled(true);
+    _button->setEnabled(true);
 }
 
 void Item::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget *)
 {
     painter->setPen(QPen(Qt::black, Qt::SolidLine)); // Установка цвета для надписи
     painter->setBrush(Qt::lightGray);  // Установка цвета для фона
-    painter->drawRect(QRect(x_, y_, width_, height_));
-    painter->drawText(QRect(x_, y_, width_, height_), Qt::AlignCenter, name_);
+    painter->drawRect(QRect(_x, _y, _width, _height));
+    painter->drawText(QRect(_x, _y, _width, _height), Qt::AlignCenter, _name);
 }
 
 QRectF Item::boundingRect() const
 {
-    return QRect(x_, y_, width_, height_);
+    return QRect(_x, _y, _width, _height);
 }
 
 void Item::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
-    mouseCoords_ = pos() - mapToScene(event->pos());
+    _mouseCoords = pos() - mapToScene(event->pos());
     setCursor(QCursor(Qt::ClosedHandCursor)); // Изменение курсора при держании
 }
 
 void Item::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 {
     // Транслирование координат курсора в координатную систему графической сцены
-    setPos(mapToScene(event->pos() + mouseCoords_));
+    setPos(mapToScene(event->pos() + _mouseCoords));
 }
 
 void Item::mouseReleaseEvent(QGraphicsSceneMouseEvent *)
@@ -60,20 +60,20 @@ void Item::mouseReleaseEvent(QGraphicsSceneMouseEvent *)
 
 void Item::addArrow(Arrow *arrow)
 {
-    arrows_.append(arrow);
+    _arrows.append(arrow);
 }
 
-void Item::removeArrow(Arrow *arrow)
+void Item::removeArrow(const Arrow *arrow)
 {
-    int index = arrows_.indexOf(arrow);
+    int index = _arrows.indexOf(arrow);
 
     if (index != -1)
-        arrows_.removeAt(index);
+        _arrows.removeAt(index);
 }
 
 void Item::removeArrows()
 {
-    foreach (Arrow *arrow, arrows_)
+    foreach (Arrow *arrow, _arrows)
     {
         arrow->startItem()->removeArrow(arrow);
         arrow->endItem()->removeArrow(arrow);

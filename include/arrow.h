@@ -26,24 +26,24 @@ public:
     /// Получение типа.
     inline int type() const override { return Type; }
     /// Идентификатора стрелки.
-    inline uint getId() const { return id_; }
+    inline uint getId() const { return _id; }
     /// Получение указателя на начальный элемент.
-    inline Item *startItem() const { return startItem_; } 
+    inline Item *startItem() const { return _startItem; }
     /// Получение указателя на конечный элемент.
-    inline Item *endItem() const { return endItem_; }   
+    inline Item *endItem() const { return _endItem; }
     void updatePosition();
 
 protected:
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget *) override;
     QPainterPath shape() const override;
-    QRectF       boundingRect() const override;
+    QRectF boundingRect() const override;
 
 private:
-    QPolygonF arrowHead_;         /// Голова стрелки (треугольник).
-    QColor    color_ = Qt::black; /// Цвет стрелки.
-    Item *startItem_ = nullptr;   /// Указатель на начальный элемент.
-    Item *endItem_   = nullptr;   /// Указатель на конечный элемент.
-    uint id_         = 0;         /// Идентификатор стрелки.
+    QPolygonF _arrowHead;       /// Голова стрелки (треугольник).
+    QColor _color = Qt::black;  /// Цвет стрелки.
+    Item *_startItem = nullptr; /// Указатель на начальный элемент.
+    Item *_endItem   = nullptr; /// Указатель на конечный элемент.
+    uint _id         = 0;       /// Идентификатор стрелки.
 
 };
 

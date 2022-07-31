@@ -2,9 +2,9 @@
 
 Button::Button(const QString &name, QWidget *parent) :
     QPushButton(parent),
-    name_      (name)
+    _name(name)
 {
-    setText(name_);                                                // Установка имени
+    setText(_name);                                                // Установка имени
     setCursor(QCursor(Qt::PointingHandCursor));                    // Изменение курсора при наведении
     setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred); // Изменение ширины и высоты при масштабировании
     QPalette palette;
@@ -18,7 +18,7 @@ Button::Button(const QString &name, QWidget *parent) :
 
 void Button::mousePressEvent(QMouseEvent *event)
 {
-    if      (event->button() == Qt::RightButton) emit rightClicked();
-    else if (event->button() == Qt::LeftButton)  emit leftClicked();
-    else if (event->button() == Qt::MidButton)   emit midClicked();
+    if (event->button() == Qt::RightButton) emit rightClicked();
+    else if (event->button() == Qt::LeftButton) emit leftClicked();
+    else if (event->button() == Qt::MiddleButton) emit midClicked();
 }

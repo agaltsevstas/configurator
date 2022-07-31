@@ -1,14 +1,11 @@
 #ifndef MAIN_WINDOW_H
 #define MAIN_WINDOW_H
 
-#include <QMainWindow>
-
-#include "button.h"
-#include "item.h"
 #include "scene.h"
 #include "graphics_view.h"
-#include "configurator.h"
 #include "dialog_window.h"
+
+#include <QMainWindow>
 
 namespace Ui
 {
@@ -30,7 +27,7 @@ public:
      * @param filePaths Карта путей к модулям.
      * @param types Карта исходных состояний модулей.
      */
-    MainWindow(map<string, string> &filePaths, map<string, bool> *types = nullptr, QWidget *parent = nullptr);
+    MainWindow(std::map<std::string, std::string> &filePaths, std::map<std::string, bool> *types = nullptr, QWidget *parent = nullptr);
     ~MainWindow();
 
 private slots:
@@ -42,12 +39,12 @@ private slots:
     void timerAlarm();                   
 
 private:
-    map<string, string> filePaths_;
-    Ui::MainWindow *mainwindow_ = nullptr; /// Главное окно
-    GraphicsView *graphicsView_ = nullptr; /// Виджет
-    DialogWindow *dialogWindow_ = nullptr; /// Диалоговое окно
-    Scene *scene_  = nullptr; /// Сцена
-    QTimer *timer_ = nullptr; /// Таймер
+    std::map<std::string, std::string> _filePaths;
+    Ui::MainWindow *_mainwindow = nullptr; /// Главное окно
+    GraphicsView *_graphicsView = nullptr; /// Виджет
+    DialogWindow *_dialogWindow = nullptr; /// Диалоговое окно
+    Scene *_scene  = nullptr; /// Сцена
+    QTimer *_timer = nullptr; /// Таймер
 };
 
 #endif // MAIN_WINDOW_H

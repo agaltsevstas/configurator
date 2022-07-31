@@ -18,7 +18,7 @@ public:
      * @param module Имя модуля.
      */
     Button(const QString &name, QWidget *parent = nullptr);
-    inline const QString getName() const { return name_; } /// Получение названия.
+    inline const QString getName() const { return _name; } /// Получение названия.
 
 signals:
     void rightClicked(); /// Нажатие правой кнопки на мыши.
@@ -29,7 +29,7 @@ protected:
     void mousePressEvent(QMouseEvent *event) override;
 
 private:
-    QString name_; /// Название.
+    QString _name; /// Название.
 };
 
 #endif // BUTTON_H

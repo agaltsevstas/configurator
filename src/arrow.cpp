@@ -1,54 +1,54 @@
+#include "arrow.h"
+#include "item.h"
+
 #include <QPen>
 #include <QPainter>
 
 #include <math.h>
 
-#include "arrow.h"
-#include "item.h"
-
 Arrow::Arrow(uint id, Item *startItem, Item *endItem) :
-    startItem_ (startItem),
-    endItem_   (endItem)  ,
-    id_        (id)
+    _startItem (startItem),
+    _endItem (endItem)  ,
+    _id(id)
 {
     setFlag(ItemIsSelectable, true);
-    setPen(QPen(color_, 2, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
+    setPen(QPen(_color, 2, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
 }
 
 void Arrow::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget *)
 {
     // Если начальный элемент накладывается с конечным, то выходим
-    if (startItem_->collidesWithItem(endItem_))
+    if (_startItem->collidesWithItem(_endItem))
         return;
 
     QPen myPen = pen();
-    myPen.setColor(color_);
+    myPen.setColor(_color);
     qreal arrowSize = 20;
     painter->setPen(myPen);
-    painter->setBrush(color_);
+    painter->setBrush(_color);
 
-    QLineF centerLine(startItem_->pos(), endItem_->pos());
-    QPolygonF endPolygon = endItem_->getPolygon();
-    QPointF p1 = endPolygon.first() + endItem_->pos();
+    QLineF centerLine(_startItem->pos(), _endItem->pos());
+    QPolygonF endPolygon = _endItem->getPolygon();
+    QPointF p1 = endPolygon.first() + _endItem->pos();
     QPointF p2;
     QPointF intersectPoint;
     QLineF polyLine;
 
     for (int i = 1; i < endPolygon.count(); ++i)
     {
-        p2 = endPolygon[i] + endItem_->pos();
+        p2 = endPolygon[i] + _endItem->pos();
         polyLine = QLineF(p1, p2);
         QLineF::IntersectType intersectType =
-                polyLine.intersect(centerLine, &intersectPoint);
+                polyLine.intersects(centerLine, &intersectPoint);
         if (intersectType == QLineF::BoundedIntersection)
             break;
         p1 = p2;
     }
 
-    setLine(QLineF(intersectPoint, startItem_->pos()));
+    setLine(QLineF(intersectPoint, _startItem->pos()));
 
     const qreal pi = 3.14;
-    double angle = ::acos(line().dx() / line().length());
+    double angle = std::acos(line().dx() / line().length());
 
     if (line().dy() >= 0)
     {
@@ -60,16 +60,16 @@ void Arrow::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget *
     QPointF arrowP2 = line().p1() + QPointF(sin(angle + pi - pi / 3) * arrowSize,
                                     cos(angle + pi - pi / 3) * arrowSize);
 
-    arrowHead_.clear();
-    arrowHead_ << line().p1() << arrowP2 << arrowP1;
+    _arrowHead.clear();
+    _arrowHead << line().p1() << arrowP2 << arrowP1;
     painter->drawLine(line());
-    painter->drawPolygon(arrowHead_);
+    painter->drawPolygon(_arrowHead);
 }
 
 QPainterPath Arrow::shape() const
 {
     QPainterPath path = QGraphicsLineItem::shape();
-    path.addPolygon(arrowHead_);
+    path.addPolygon(_arrowHead);
     return path;
 }
 
@@ -83,6 +83,6 @@ QRectF Arrow::boundingRect() const
 
 void Arrow::updatePosition()
 {
-    QLineF line(mapFromItem(startItem_, 0, 0), mapFromItem(endItem_, 0, 0));
+    QLineF line(mapFromItem(_startItem, 0, 0), mapFromItem(_endItem, 0, 0));
     setLine(line);
 }

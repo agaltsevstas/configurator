@@ -1,17 +1,17 @@
+#include "main_window.h"
+
 #include <QApplication>
 
 #include <iostream>
+#include <boost/filesystem.hpp>
 #include <boost/program_options.hpp>
 
-#include "main_window.h"
-
-using namespace std;
 using namespace boost::program_options;
 
 /**
  * Карта исходных состояний модулей.
  */
-map<string, bool> types =
+std::map<std::string, bool> types =
 {{"module_1",  true },
  {"module_2",  true },
  {"module_3",  true },
@@ -38,14 +38,14 @@ map<string, bool> types =
  * Если у модуля есть заголовочный файл, совпадающий с именем его папки, то данный модуль добавляется
  * в Карту путей к модулям.
  */
-map<string, string> getModules(const string &directory)
+std::map<std::string, std::string> getModules(const std::string &directory)
 {
-    bool isFound = false;            // Нахождение модуля
-    string module;                   // Название модуля
-    map<string, string> directories; // Карта путей к модулям
-    recursive_directory_iterator iter(directory);
-    recursive_directory_iterator end;
-    vector<string> names;
+    bool isFound = false; // Нахождение модуля
+    std::string module;  // Название модуля
+    std::map<std::string, std::string> directories; // Карта путей к модулям
+    boost::filesystem::recursive_directory_iterator iter(directory);
+    boost::filesystem::recursive_directory_iterator end;
+    std::vector<std::string> names;
     try
     {
         while (iter != end)
@@ -53,7 +53,7 @@ map<string, string> getModules(const string &directory)
             //// Метод позволяющий после нахождения определенного условия остаться в текущем каталоге
 //            iter.no_push();
             int levelPath = iter.level(); // Уровень папки относительно пути проекта
-            string folder = iter->path().filename().c_str(); // Название папки
+            std::string folder = iter->path().filename().c_str(); // Название папки
 
             // Проверка на папку
             if (is_directory(iter->path()))
@@ -68,10 +68,10 @@ map<string, string> getModules(const string &directory)
                 }
             }
             // Поиск заголовочного файла, совпадающего с названием папки
-            else if (levelPath == 2 && module == basename(folder) &&
-                    (extension(folder) == ".h" || extension(folder) == ".hpp"))
+            else if (levelPath == 2 && module == boost::filesystem::basename(folder) &&
+                    (boost::filesystem::extension(folder) == ".h" || boost::filesystem::extension(folder) == ".hpp"))
             {
-                string filePath = directory + module + "/include/" + folder;
+                std::string filePath = directory + module + "/include/" + folder;
                 directories[module] = filePath;
                 names.push_back(module);
                 iter.pop(); // Переход на уровень 1 относительно пути проекта
@@ -86,23 +86,23 @@ map<string, string> getModules(const string &directory)
                 isFound = false;
         }
     }
-    catch (exception &ex)
+    catch (std::exception &ex)
     {
-        cerr << "Exception >> " << ex.what() << endl;
+        std::cerr << "Exception >> " << ex.what() << std::endl;
     }
     return directories;
 }
 
 int main(int argc, char *argv[])
 {
-    string directory = "../modules/"; // Путь к модулям
+    std::string directory = "../modules/"; // Путь к модулям
     if (argc > 1)
     {
-        string parameter;
+        std::string parameter;
         options_description desc("Требуемые опции");
         desc.add_options()
                 ("help,h", "Помощь")
-                ("directory,d", value<string>(&parameter), "Путь к модулям");
+                ("directory,d", value<std::string>(&parameter), "Путь к модулям");
         try
         {
             variables_map vm;
@@ -111,31 +111,31 @@ int main(int argc, char *argv[])
 
             if (vm.count("help"))
             {
-                cout << desc << endl;
+                std::cout << desc << std::endl;
                 return 0;
             }
 
             if (vm.count("directory"))
             {
-                directory = vm["directory"].as<string>();
-                cout << "Выбран путь к модулям >> " << directory << endl;
+                directory = vm["directory"].as<std::string>();
+                std::cout << "Выбран путь к модулям >> " << directory << std::endl;
             }
             else
             {
-                throw string(argv[1]);
+                throw std::string(argv[1]);
             }
         }
-        catch(const string &exception)
+        catch(const std::string &exception)
         {
-            cerr << "Неверный параметр >> " << exception << endl;
+            std::cerr << "Неверный параметр >> " << exception << std::endl;
         }
-        catch(const exception &ex)
+        catch(const std::exception &ex)
         {
-            cerr << "Неверный параметр >> " << ex.what() << endl;
+            std::cerr << "Неверный параметр >> " << ex.what() << std::endl;
         }
         catch(...)
         {
-            cerr << "Неизвестная ошибка!" << endl;
+            std::cerr << "Неизвестная ошибка!" << std::endl;
         }
     }
     replace(directory.begin(), directory.end(), '\\', '/');
@@ -143,7 +143,7 @@ int main(int argc, char *argv[])
     {
         directory += "/";
     }
-    map<string, string> filePaths = getModules(directory);
+    std::map<std::string, std::string> filePaths = getModules(directory);
     QApplication a(argc, argv);
     MainWindow w(filePaths, &types);
     w.show();

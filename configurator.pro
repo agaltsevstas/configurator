@@ -8,17 +8,22 @@ message("PLATFORM  IDENTITY: " $$QMAKE_HOST.arch)
 
 ###### Qt directories
 PLATFORM = 0
-contains(QMAKE_HOST.arch, x86_64):{
-    # for PC
+contains(QMAKE_HOST.arch, x86_64):
+{
     PLATFORM = 1
     message("PLATFORM: x86_64")
     COMMON_LIBS_DIR = /usr/lib/x86_64-linux-gnu
 }
-contains(QMAKE_HOST.arch, aarch64):{
-    # for Tegras
+contains(QMAKE_HOST.arch, aarch64):
+{
     PLATFORM = 2
     message("PLATFORM: aarch")
     COMMON_LIBS_DIR = /usr/lib/aarch64-linux-gnu
+}
+macx
+{
+    INCLUDEPATH = /opt/homebrew/include
+    COMMON_LIBS_DIR = /opt/homebrew/lib
 }
 
 # Build properties

@@ -22,7 +22,7 @@ class DialogWindow : public QWidget
 public:
     DialogWindow(QWidget *parent = 0);
     ~DialogWindow();
-    void setText(QString &text) { text_ = text; } /// Получение сообщения.
+    void setText(QString &text) { _text = text; } /// Получение сообщения.
 
 signals:
     void mainWindow(); /// Открытие главного окна.
@@ -34,14 +34,14 @@ private slots:
     void on_lineEdit_textChanged(const QString &line); /// Ввод имени файла для сохранения.
 
 private:
-    const int width_  = 400; /// Ширина окна.
-    const int height_ = 110; /// Высота окна.
+    const int _width = 400; /// Ширина окна.
+    const int _height = 110; /// Высота окна.
     
-    QString text_;     /// Текст сообщения.
-    QString filePath_; /// Второе окно.
+    QString _text;     /// Текст сообщения.
+    QString _filePath; /// Второе окно.
     
-    Ui::DialogWindow  *dialogWindow_  = nullptr; /// Диалоговое окно.
-    QPlainTextEdit    *plainTextEdit_ = nullptr; /// Окно с текстом сообщения.
+    Ui::DialogWindow  *_dialogWindow  = nullptr; /// Диалоговое окно.
+    QPlainTextEdit *_plainTextEdit = nullptr;    /// Окно с текстом сообщения.
 };
 
 #endif // DIALOG_WINDOW_H

@@ -1,11 +1,11 @@
 #ifndef Item_H
 #define Item_H
 
-#include <QGraphicsItem>
-#include <QGraphicsSceneMouseEvent>
-
 #include "button.h"
 #include "arrow.h"
+
+#include <QGraphicsItem>
+#include <QGraphicsSceneMouseEvent>
 
 /**
  * Класс Элемент
@@ -26,32 +26,32 @@ public:
     /// Получение типа.
     inline int type() const override { return Type; }     
     /// Получение фигуры.
-    inline const QPolygonF getPolygon() const { return polygon_; } 
+    inline const QPolygonF getPolygon() const { return _polygon; }
     /// Получение названия.
-    inline const QString   getName() const { return name_; }    
+    inline const QString getName() const { return _name; }
     void setEnabledButton();        /// Сделать кнопку доступной.
     void addArrow(Arrow *arrow);    /// Добавление стрелки.
-    void removeArrow(Arrow *arrow); /// Удаление стрелки.
+    void removeArrow(const Arrow *arrow); /// Удаление стрелки.
     void removeArrows();            /// Удаление всех стрелок.
 
 protected:
-    void   paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget *) override;
+    void paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget *) override;
     QRectF boundingRect() const override;
-    void   mousePressEvent(QGraphicsSceneMouseEvent *event) override;
-    void   mouseMoveEvent(QGraphicsSceneMouseEvent *event) override;
-    void   mouseReleaseEvent(QGraphicsSceneMouseEvent *) override;
+    void mousePressEvent(QGraphicsSceneMouseEvent *event) override;
+    void mouseMoveEvent(QGraphicsSceneMouseEvent *event) override;
+    void mouseReleaseEvent(QGraphicsSceneMouseEvent *) override;
 
 private:
-    const int x_ = -75; /// Расположение по x.
-    const int y_ = -15; /// Расположение по y.
-    const int width_  = 150; /// Ширина.
-    const int height_ = 30;  /// Длина.
+    const int _x = -75; /// Расположение по x.
+    const int _y = -15; /// Расположение по y.
+    const int _width = 150; /// Ширина.
+    const int _height = 30; /// Длина.
     
-    QString name_;        /// Название.
-    QPointF mouseCoords_; /// Координаты мыши.
-    QPolygonF polygon_;   /// Отрисовка фигуры.
-    Button *button_ = nullptr; /// Указатель на кнопку.
-    QList<Arrow *> arrows_;    /// Список всех входящих и выходящих стрелок.
+    QString _name;        /// Название.
+    QPointF _mouseCoords; /// Координаты мыши.
+    QPolygonF _polygon;   /// Отрисовка фигуры.
+    Button *_button = nullptr; /// Указатель на кнопку.
+    QList<Arrow *> _arrows;    /// Список всех входящих и выходящих стрелок.
 };
 
 #endif // Item_H

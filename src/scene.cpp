@@ -1,3 +1,5 @@
+#include "arrow.h"
+#include "item.h"
 #include "scene.h"
 
 void Scene::mousePressEvent(QGraphicsSceneMouseEvent *mouseEvent)
@@ -5,12 +7,12 @@ void Scene::mousePressEvent(QGraphicsSceneMouseEvent *mouseEvent)
     // При нажатии правой кнопки мыши рисуем линию
     if (mouseEvent->button() == Qt::RightButton)
     {
-        line_ = new QGraphicsLineItem(QLineF(mouseEvent->scenePos(), mouseEvent->scenePos()));
-        line_->setPen(QPen(Qt::black, 2));
-        addItem(line_);
+        _line = new QGraphicsLineItem(QLineF(mouseEvent->scenePos(), mouseEvent->scenePos()));
+        _line->setPen(QPen(Qt::black, 2));
+        addItem(_line);
     } 
     // При нажатии средней кнопки мыши идет удаление
-    if (mouseEvent->button() == Qt::MidButton)
+    if (mouseEvent->button() == Qt::MiddleButton)
     {
         int i = -1; // Индекс самой первой удаленной связи между элементами
         QGraphicsItem *itemScene = itemAt(mouseEvent->scenePos(), QTransform());
@@ -27,8 +29,8 @@ void Scene::mousePressEvent(QGraphicsSceneMouseEvent *mouseEvent)
             arrow->startItem()->removeArrow(arrow);
             arrow->endItem()->removeArrow(arrow);
             removeItem(arrow);
-            links_.remove(i);
-            isChanged_ = true;
+            _links.remove(i);
+            _isChanged = true;
             delete arrow;
         }
         // Удаление элемента и всех стрелок вместе с ним
@@ -38,7 +40,7 @@ void Scene::mousePressEvent(QGraphicsSceneMouseEvent *mouseEvent)
             Item *item = qgraphicsitem_cast<Item *>(itemScene);
             QString name = item->getName();
 
-            for (auto it = links_.begin(); it != links_.end();)
+            for (auto it = _links.begin(); it != _links.end();)
             {
                 if (it->first == name || it->second == name)
                 {
@@ -47,25 +49,25 @@ void Scene::mousePressEvent(QGraphicsSceneMouseEvent *mouseEvent)
                         i = it.key();
                         isFirst = true;
                     }
-                    it = links_.erase(it);
-                    isChanged_ = true;
+                    it = _links.erase(it);
+                    _isChanged = true;
                 }
                 else
                     ++it;
             }
             item->removeArrows();
             item->setEnabledButton();
-            y_ -= 50;
+            _y -= 50;
             removeItem(item);
             delete item;
         }
         // Замена номеров связей, начиная с индекса i
-        if (!links_.empty() && i >= 0 && i <= links_.size())
+        if (!_links.empty() && i >= 0 && i <= _links.size())
         {
-            for (auto it = (links_.begin() + i - 1); it != links_.end(); ++i)
+            for (auto it = (_links.begin() + i - 1); it != _links.end(); ++i)
             {
-                links_[i] = it.value();
-                it = links_.erase(it);
+                _links[i] = it.value();
+                it = _links.erase(it);
             }
         }
     }
@@ -75,11 +77,11 @@ void Scene::mousePressEvent(QGraphicsSceneMouseEvent *mouseEvent)
 
 void Scene::mouseMoveEvent(QGraphicsSceneMouseEvent *mouseEvent)
 {    
-    if (line_ != nullptr)
+    if (_line != nullptr)
     {
         // Перетаскивание линии
-        QLineF newLine(line_->line().p1(), mouseEvent->scenePos());
-        line_->setLine(newLine);
+        QLineF newLine(_line->line().p1(), mouseEvent->scenePos());
+        _line->setLine(newLine);
     }
     else
     {
@@ -93,18 +95,18 @@ void Scene::mouseMoveEvent(QGraphicsSceneMouseEvent *mouseEvent)
 void Scene::mouseReleaseEvent(QGraphicsSceneMouseEvent *mouseEvent)
 {
     // При отпускании правой кнопки мыши рисуем стрелку
-    if (line_ != nullptr && mouseEvent->button() == Qt::RightButton)
+    if (_line != nullptr && mouseEvent->button() == Qt::RightButton)
     {
         // Проверка начального и конечного положения стрелки
-        QList<QGraphicsItem *> startItems = items(line_->line().p1());
-        if (startItems.count() && startItems.first() == line_)
+        QList<QGraphicsItem *> startItems = items(_line->line().p1());
+        if (startItems.count() && startItems.first() == _line)
             startItems.removeFirst();
-        QList<QGraphicsItem *> endItems = items(line_->line().p2());
-        if (endItems.count() && endItems.first() == line_)
+        QList<QGraphicsItem *> endItems = items(_line->line().p2());
+        if (endItems.count() && endItems.first() == _line)
             endItems.removeFirst();
 
-        removeItem(line_);
-        delete line_;
+        removeItem(_line);
+        delete _line;
 
         // Проверки на попадания положения концов стрелки на элементы
         bool isUintCount = (startItems.count() > 0) && (endItems.count() > 0);
@@ -117,12 +119,12 @@ void Scene::mouseReleaseEvent(QGraphicsSceneMouseEvent *mouseEvent)
             Item *endItem = qgraphicsitem_cast<Item *>(endItems.first());
 
             // Проверка на совпадение ранее добавленной связи между элементами
-            for (const auto &pair: links_)
+            for (const auto& [key, value]: qAsConst((_links)))
             {
-                bool isDirectMatched  = pair.first  == startItem->getName() &&
-                                        pair.second == endItem->getName();
-                bool isReverseMatched = pair.first  == endItem->getName()   &&
-                                        pair.second == startItem->getName();
+                bool isDirectMatched  = key  == startItem->getName() &&
+                                        value == endItem->getName();
+                bool isReverseMatched = key  == endItem->getName()   &&
+                                        value == startItem->getName();
                 if (isDirectMatched || isReverseMatched)
                 {
                     isMatched = true;
@@ -132,20 +134,20 @@ void Scene::mouseReleaseEvent(QGraphicsSceneMouseEvent *mouseEvent)
             // Добавление стрелки на сцену и добавление связи между элементами
             if (!isMatched)
             {
-                Arrow *arrow = new Arrow(idArrow_, startItem, endItem);
+                Arrow *arrow = new Arrow(_idArrow, startItem, endItem);
                 startItem->addArrow(arrow);
                 endItem->addArrow(arrow);
                 arrow->setZValue(-1);
                 addItem(arrow);
                 arrow->updatePosition();
-                links_[idArrow_++] = qMakePair(startItem->getName(), endItem->getName());
-                isChanged_ = true;
+                _links[_idArrow++] = qMakePair(startItem->getName(), endItem->getName());
+                _isChanged = true;
                 emit arrowInserted();
             }
         }
     }
 
-    line_ = nullptr;
+    _line = nullptr;
     QGraphicsScene::mouseReleaseEvent(mouseEvent);
 }
 

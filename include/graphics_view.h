@@ -17,10 +17,10 @@ protected:
     void resizeEvent(QResizeEvent *event) override;
 
 private:
-    const int x_      = 0;
-    const int y_      = 0;
-    const int width_  = 800; /// Ширина окна виджета и сцены
-    const int height_ = 600; /// Высота окна виджета и сцены
+    const int _x = 0;
+    const int _y = 0;
+    const int _width = 800;  /// Ширина окна виджета и сцены
+    const int _height = 600; /// Высота окна виджета и сцены
 };
 
 #endif // GRAPHICS_VIEW_H

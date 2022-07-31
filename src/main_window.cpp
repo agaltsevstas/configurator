@@ -1,42 +1,44 @@
-#include <QTimer>
-#include <QDesktopWidget>
-
+#include "button.h"
+#include "configurator.h"
+#include "item.h"
 #include "main_window.h"
 #include "ui_main_window.h"
 
-MainWindow::MainWindow(map<string, string> &filePaths, map<string, bool> *types, QWidget *parent) :
+#include <QTimer>
+
+MainWindow::MainWindow(std::map<std::string, std::string> &filePaths, std::map<std::string, bool> *types, QWidget *parent) :
     QMainWindow   (parent),
-    filePaths_    (filePaths),
-    mainwindow_   (new Ui::MainWindow),
-    graphicsView_ (new GraphicsView(this)),
-    dialogWindow_ (new DialogWindow()),
-    scene_        (new Scene(this)),
-    timer_        (new QTimer(this))
-{    
-    mainwindow_->setupUi(this);                        // Установка настроек с формы ui
-    graphicsView_->setScene(scene_);                   // Добавление сцены в виджет
-    mainwindow_->gridLayout->addWidget(graphicsView_); // Добавление виджета в главное окно
-    mainwindow_->generateYmlButton->setEnabled(false); // Сделать кнопку недоступной
-    timer_->start(100);                                // Таймер = 100 msec
+    _filePaths    (filePaths),
+    _mainwindow   (new Ui::MainWindow),
+    _graphicsView (new GraphicsView(this)),
+    _dialogWindow (new DialogWindow()),
+    _scene        (new Scene()),
+    _timer        (new QTimer(this))
+{
+    _mainwindow->setupUi(this);                        // Установка настроек с формы ui
+    _graphicsView->setScene(_scene);                   // Добавление сцены в виджет
+    _mainwindow->gridLayout->addWidget(_graphicsView); // Добавление виджета в главное окно
+    _mainwindow->generateYmlButton->setEnabled(false); // Сделать кнопку недоступной
+    _timer->start(100);                                // Таймер = 100 msec
 
     // Добавление кнопок в главное окно
-    for (const auto &it: filePaths_)
+    for (const auto &it: _filePaths)
     {
         Button *button = new Button(QString::fromStdString(it.first), this);
         // Проверка состояния каждого модуля
         if (types != nullptr && (*types)[it.first] == false)
             button->setEnabled(false);
-        mainwindow_->verticalLayout->addWidget(button);
+        _mainwindow->verticalLayout->addWidget(button);
         connect(button, &Button::leftClicked, this, &MainWindow::addButton); // Отслеживание на нажатие кнопки
     }
-    connect(dialogWindow_, &DialogWindow::mainWindow, this, &MainWindow::show); // Отслеживание перехода к диалоговому окну
-    connect(timer_, SIGNAL(timeout()), this, SLOT(timerAlarm()));               // Отслеживание таймера на наличие хотя бы 1 связи между модулями
-    move(qApp->desktop()->availableGeometry(this).center()-rect().center());    // Установка главного окна по центру экрана
+    connect(_dialogWindow, &DialogWindow::mainWindow, this, &MainWindow::show); // Отслеживание перехода к диалоговому окну
+    connect(_timer, SIGNAL(timeout()), this, SLOT(timerAlarm())); // Отслеживание таймера на наличие хотя бы 1 связи между модулями
+    move(qApp->primaryScreen()->availableGeometry().center()); // Установка главного окна по центру экрана
 }
 
 MainWindow::~MainWindow()
 {
-    delete mainwindow_;
+    delete _mainwindow;
 }
 
 void MainWindow::addButton()
@@ -44,28 +46,28 @@ void MainWindow::addButton()
     Button *button = static_cast<Button*>(sender());    
     button->setEnabled(false);                       // Делаем кнопку недоступной, после добавления на сцену
     Item *item = new Item(button);
-    QPointF newCoordinates = scene_->coordinates();  // Новые координаты для элемента на сцене
+    QPointF newCoordinates = _scene->coordinates();  // Новые координаты для элемента на сцене
     item->setPos(newCoordinates);
-    scene_->addItem(item);                           // Добавляем элемент на графическую сцену
+    _scene->addItem(item);                           // Добавляем элемент на графическую сцену
 }
 
 void MainWindow::on_generateYmlButton_clicked()
 {
-    bool isChanged = scene_->getIsChanged();
+    bool isChanged = _scene->getIsChanged();
 
     // Если была соединена / разорвана связь между модулями
     if (isChanged)
     {
         Configurator *configurator = new Configurator;
         // Добавление связи в конфигуратор
-        for (const auto &link: scene_->getLinks())
+        for (const auto &link: _scene->getLinks())
         {
-            string input = link.first.toStdString();
-            string output = link.second.toStdString();
-            const map<string, string> filePaths =
+            std::string input = link.first.toStdString();
+            std::string output = link.second.toStdString();
+            const std::map<std::string, std::string> filePaths =
             {
-                {input,  filePaths_[input]},
-                {output, filePaths_[output]}
+                {input,  _filePaths[input]},
+                {output, _filePaths[output]}
             };
             configurator->addTypes(input, output, filePaths);
         }
@@ -76,20 +78,20 @@ void MainWindow::on_generateYmlButton_clicked()
         QString text;
         QTextStream fs(&text);
 
-        fs << yamlVersion << endl;
-        fs << "---" << endl;
-        fs << "modules:" << endl;
+        fs << yamlVersion << Qt::endl;
+        fs << "---" << Qt::endl;
+        fs << "modules:" << Qt::endl;
         auto types = configurator->getTypes();
         // Модули
-        for (auto pair: types)
+        for (const auto &pair: types)
         {
             tab = space;
-            fs << tab << "-" << endl;
+            fs << tab << "-" << Qt::endl;
             tab = space.repeated(2);
-            fs << tab << "id: " << pair.first << endl;
-            fs << tab << "type: " << QString::fromStdString(pair.second.name) << endl;
+            fs << tab << "id: " << pair.first << Qt::endl;
+            fs << tab << "type: " << QString::fromStdString(pair.second.name) << Qt::endl;
 
-            vector<vector<string>> parametersVector = pair.second.parametersVector;
+            std::vector<std::vector<std::string>> parametersVector = pair.second.parametersVector;
             if (!parametersVector.empty())
             {
                 bool isFalseParam = false;
@@ -97,64 +99,62 @@ void MainWindow::on_generateYmlButton_clicked()
                 const QString comment = "#"; // Комментарий
                 if (isFalseParams)
                     fs << comment;
-                fs << tab << "parameters: " << endl;
+                fs << tab << "parameters: " << Qt::endl;
                 tab = space.repeated(3);
-                for (vector<string> &parameters: parametersVector)
+                for (std::vector<std::string> &parameters: parametersVector)
                 {
                     if (parameters[2] == "false")
                     {
                         if (!isFalseParam)
                         {
-                            fs << comment << tab << QString::fromUtf8("Список необязательных параметров") << endl;
+                            fs << comment << tab << QString::fromUtf8("Список необязательных параметров") << Qt::endl;
                             isFalseParam = true;
                         }
                         fs << comment;
                     }
                     if (parameters[1] == "dtString")
                         parameters[3] = "\"" + parameters[3] + "\"";
-                    fs << tab << QString::fromStdString(parameters[0]) << ": " << QString::fromStdString(parameters[3]) << endl;
+                    fs << tab << QString::fromStdString(parameters[0]) << ": " << QString::fromStdString(parameters[3]) << Qt::endl;
                 }
             }
         }
-        fs << endl;
+        fs << Qt::endl;
         // Вывод всех связей между модулями в текст сообщения
-        map<uint, vector<uint>> links = configurator->getLinks();
+        std::map<uint, std::vector<uint>> links = configurator->getLinks();
         // Связи
-        fs << "links: " << endl;
+        fs << "links: " << Qt::endl;
         for (const auto &pair: links)
         {
             uint from = pair.first;
             for (const uint to: pair.second)
             {
                 tab = space;
-                fs << tab << "-" << endl;
+                fs << tab << "-" << Qt::endl;
                 tab = space.repeated(2);
-                fs << tab << "from: " << from << endl;
-                fs << tab << "to: " << to << endl;
+                fs << tab << "from: " << from << Qt::endl;
+                fs << tab << "to: " << to << Qt::endl;
             }
         }
-        dialogWindow_->setText(text); // Отправка сообщения в диалоговое окно
-        scene_->setIsChanged(false);
+        _dialogWindow->setText(text); // Отправка сообщения в диалоговое окно
+        _scene->setIsChanged(false);
         delete configurator;
     }
-    dialogWindow_->show();
+    _dialogWindow->show();
     close();
 }
 
 void MainWindow::timerAlarm()
 {
-    QPalette pal = palette();
-
     // Если кнопка generateYmlButton недоступна
-    if (scene_->getLinks().empty())
+    if (_scene->getLinks().empty())
     {
-        mainwindow_->generateYmlButton->setStyleSheet(QStringLiteral("background-color: white;"));  // Стиль кнопки в отключенном состоянии
-        mainwindow_->generateYmlButton->setEnabled(false);
+        _mainwindow->generateYmlButton->setStyleSheet(QStringLiteral("background-color: white;")); // Стиль кнопки в отключенном состоянии
+        _mainwindow->generateYmlButton->setEnabled(false);
     }
     else
     {
-        mainwindow_->generateYmlButton->setStyleSheet(QStringLiteral("color: white;"
-                                                                     "background-color: #0000ff;")); // Стиль кнопки в включенном состоянии
-        mainwindow_->generateYmlButton->setEnabled(true);                                            // Сделать кнопку доступной
+        // Стиль кнопки в включенном состоянии
+        _mainwindow->generateYmlButton->setStyleSheet(QStringLiteral("color: white;" "background-color: #0000ff;"));
+        _mainwindow->generateYmlButton->setEnabled(true); // Сделать кнопку доступной
     }
 }
